@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="header_title">Ailə Büdcəsi</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Giriş Ekranı -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 data-i18n="login_title">🔐 Təhlükəsiz Giriş</h1>
+                <p class="login-subtitle" data-i18n="login_subtitle">Ailə Büdcəsi İdarəetmə Sistemi</p>
+            </div>
+
+            <!-- İlk Giriş (Üz + Kod) -->
+            <div class="login-form" id="first-login-form">
+                <div class="form-step" id="face-step">
+                    <h3 data-i18n="login_face_title">📸 Üz Təsdiqləməsi</h3>
+                    <p class="step-description" data-i18n="login_face_description">İlk dəfə giriş edirsiniz. Zəhmət olmasa kameranıza icazə verin və üzünüzü çəkin.</p>
+                    
+                    <div class="camera-container">
+                        <video id="video" autoplay playsinline></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div class="camera-overlay">
+                            <div class="face-guide"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-controls">
+                        <button type="button" class="btn btn-capture" id="capture-btn">
+                            <span class="btn-icon">📷</span>
+                            <span data-i18n="login_capture">Üzü Çək</span>
+                        </button>
+                        <button type="button" class="btn btn-retake" id="retake-btn" style="display: none;">
+                            <span class="btn-icon">🔄</span>
+                            <span data-i18n="login_retake">Yenidən Çək</span>
+                        </button>
+                    </div>
+                    
+                    <div class="captured-preview" id="captured-preview" style="display: none;">
+                        <img id="captured-image" alt="Çəkilmiş üz">
+                        <p class="preview-text" data-i18n="login_face_captured">Üzünüz çəkildi! İndi təhlükəsizlik kodu yaradın.</p>
+                    </div>
+                </div>
+
+                <div class="form-step" id="pin-step" style="display: none;">
+                    <h3 data-i18n="login_pin_title">🔑 Təhlükəsizlik Kodu</h3>
+                    <p class="step-description" data-i18n="login_pin_description">Gələcək girişlər üçün 4-6 rəqəmli kod yaradın.</p>
+                    
+                    <div class="pin-input-container">
+                        <input type="password" id="pin-input" class="pin-input" data-i18n-placeholder="login_pin_placeholder" placeholder="Kod daxil edin (4-6 rəqəm)" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+                        <input type="password" id="pin-confirm" class="pin-input" data-i18n-placeholder="login_pin_confirm" placeholder="Kodu təsdiqləyin" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="display: none;">
+                    </div>
+                    
+                    <div class="pin-error" id="pin-error" style="display: none;"></div>
+                    
+                    <button type="button" class="btn btn-submit-pin" id="submit-pin-btn" disabled>
+                        <span data-i18n="login_pin_submit">Kodu Təsdiqlə</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sonrakı Girişlər (Yalnız Kod) -->
+            <div class="login-form" id="regular-login-form" style="display: none;">
+                <div class="form-step">
+                    <h3 data-i18n="login_regular_title">🔑 Giriş Kodu</h3>
+                    <p class="step-description" data-i18n="login_regular_description">Təhlükəsizlik kodunuzu daxil edin</p>
+                    
+                    <div class="pin-input-container">
+                        <input type="password" id="login-pin" class="pin-input" data-i18n-placeholder="login_regular_placeholder" placeholder="Kod daxil edin" maxlength="6" inputmode="numeric" pattern="[0-9]*" autofocus>
+                    </div>
+                    
+                    <div class="pin-error" id="login-error" style="display: none;"></div>
+                    
+                    <button type="button" class="btn btn-login" id="login-btn">
+                        <span data-i18n="login_button">Giriş Et</span>
+                    </button>
+                    
+                    <button type="button" class="btn-link" id="reset-login-btn" style="margin-top: 1rem;">
+                        🔄 <span data-i18n="login_reset">Məlumatları Sıfırla (Yenidən qeydiyyat)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Əsas Məzmun (Giriş edənə qədər gizli) -->
+    <div class="container" id="main-container" style="display: none;">
+        <header>
+            <div class="header-top-bar">
+                <div class="header-content">
+                    <h1><span class="money-icon">💰</span> <span data-i18n="header_title">Ailə Büdcəsi</span></h1>
+                    <p class="subtitle" data-i18n="header_subtitle">Bizimli büdcəni ölç</p>
+                </div>
+                <div class="language-selector-wrapper">
+                    <button class="language-selector-btn" id="language-selector-btn">
+                        <span class="language-flag" id="language-flag">🇦🇿</span>
+                        <span class="language-code" id="language-code">AZ</span>
+                        <span class="language-arrow">▼</span>
+                    </button>
+                    <div class="language-dropdown" id="language-dropdown">
+                        <div class="language-option" data-lang="az">
+                            <span class="option-flag">🇦🇿</span>
+                            <span class="option-name">Azərbaycan</span>
+                            <span class="option-check" id="check-az">✓</span>
+                        </div>
+                        <div class="language-option" data-lang="en">
+                            <span class="option-flag">🇬🇧</span>
+                            <span class="option-name">English</span>
+                            <span class="option-check" id="check-en"></span>
+                        </div>
+                        <div class="language-option" data-lang="ru">
+                            <span class="option-flag">🇷🇺</span>
+                            <span class="option-name">Русский</span>
+                            <span class="option-check" id="check-ru"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="welcome-info">
+                <p data-i18n="welcome_greeting">👋 Xoş gəlmisiniz! Bu sistem ilə ailənizin maliyyəsini idarə edə bilərsiniz.</p>
+                <p data-i18n="welcome_how">📝 <strong>Necə işləyir?</strong> Əvvəlcə gəlirlərinizi, sonra xərclərinizi əlavə edin. Sistem avtomatik olaraq qalığı hesablayacaq və sizə tövsiyələr verəcək.</p>
+            </div>
+        </header>
+
+        <!-- Timeline -->
+        <div class="timeline-container">
+            <div class="timeline-mode-toggle">
+                <button class="timeline-mode-btn active" id="timeline-mode-single" data-mode="single">
+                    <span data-i18n="timeline_single_month">📅 Tək Ay</span>
+                </button>
+                <button class="timeline-mode-btn" id="timeline-mode-range" data-mode="range">
+                    <span data-i18n="timeline_range">📊 Aralıq</span>
+                </button>
+            </div>
+            <div class="timeline-wrapper">
+                <div class="timeline-track" id="timeline-track">
+                    <!-- Timeline items will be generated by JavaScript -->
+                </div>
+            </div>
+            <div class="timeline-controls">
+                <button class="timeline-btn timeline-btn-prev" id="timeline-prev">◀</button>
+                <button class="timeline-btn timeline-btn-next" id="timeline-next">▶</button>
+            </div>
+            <div class="timeline-range-info" id="timeline-range-info" style="display: none;">
+                <span id="timeline-range-text"></span>
+                <button class="timeline-clear-range" id="timeline-clear-range">✕</button>
+            </div>
+        </div>
+
+        <!-- Xülasə Kartları -->
+        <div class="summary-cards">
+            <div class="summary-card income-card">
+                <div class="card-icon">📈</div>
+                <div class="card-info">
+                    <span class="card-label" data-i18n="summary_total_income">Ümumi Gəlir</span>
+                    <span class="card-value" id="total-income">0.00 ₼ /ay</span>
+                </div>
+            </div>
+            <div class="summary-card expense-card">
+                <div class="card-icon">📉</div>
+                <div class="card-info">
+                    <span class="card-label" data-i18n="summary_current_expense">Mövcud Xərclər</span>
+                    <span class="card-value" id="total-expense">0.00 ₼ /ay</span>
+                </div>
+            </div>
+            <div class="summary-card balance-card">
+                <div class="card-icon">💎</div>
+                <div class="card-info">
+                    <span class="card-label" data-i18n="summary_balance">Balans</span>
+                    <span class="card-value" id="balance">0.00 ₼</span>
+                    <div class="balance-buttons">
+                        <button class="btn-add-balance" id="add-balance-btn" data-i18n-title="summary_add_deposit">
+                            <span class="btn-icon">+</span>
+                            <span data-i18n="summary_add_deposit">Mədaxil</span>
+                        </button>
+                        <button class="btn-transfer-balance" id="transfer-balance-btn">
+                            <span class="btn-icon">💳</span>
+                            <span>Köçürmə</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <!-- Gəlirlər Bölməsi -->
+            <section class="section income-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-icon income-icon">💵</div>
+                        <div class="subsection-title-content">
+                            <div>
+                                <h2 data-i18n="income_title">Ailənin Gəlirləri</h2>
+                                <p class="section-subtitle" data-i18n="income_subtitle">Aylıq gəlirlərinizi buraya əlavə edin</p>
+                            </div>
+                            <span class="income-total" id="income-total">0.00 ₼ /ay</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="input-form income-form" id="income-form">
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="income-title">
+                                <span class="label-icon">📝</span>
+                                <span data-i18n="income_label">Gəlir Başlığı</span>
+                            </label>
+                            <input type="text" id="income-title" data-i18n-placeholder="income_placeholder" placeholder="Məsələn: Maaş, Kirayə, Bonus..." required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="income-amount">
+                                <span class="label-icon">💰</span>
+                                <span data-i18n="income_amount">Məbləğ</span>
+                            </label>
+                            <input type="number" id="income-amount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="income-currency">
+                                <span class="label-icon">💱</span>
+                                <span data-i18n="income_currency">Valyuta</span>
+                            </label>
+                            <select id="income-currency" class="currency-select" required>
+                                <option value="AZN">AZN (₼)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="RUB">RUB (₽)</option>
+                                <option value="TRY">TRY (₺)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label" for="income-recurring">
+                            <input type="checkbox" id="income-recurring" class="income-checkbox">
+                            <span class="checkbox-text" data-i18n="income_recurring">Davamlı gəlir</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-income">
+                        <span class="btn-icon">+</span>
+                        <span data-i18n="income_add">Gəlir Əlavə Et</span>
+                    </button>
+                </form>
+
+                <div class="list-container">
+                    <ul class="items-list" id="income-list">
+                        <!-- Gəlirlər buraya əlavə olunacaq -->
+                    </ul>
+                    <div class="empty-state" id="income-empty">
+                        <span class="empty-icon">📋</span>
+                        <p data-i18n="income_empty">Hələ heç bir gəlir əlavə olunmayıb</p>
+                    </div>
+                </div>
+
+                <!-- Kredit Bölməsi -->
+                <div class="credit-section">
+                    <div class="credit-header">
+                        <h3 data-i18n="credit_title">🏦 Kredit</h3>
+                        <div class="section-help-small" data-i18n-title="credit_subtitle">
+                            <span class="help-icon">ℹ️</span>
+                        </div>
+                    </div>
+                    <p class="section-description" data-i18n="credit_subtitle">Kredit məbləği və faiz daxil edin, sistem sizə ən yaxşı müddəti tövsiyə edəcək. Sistem aylıq ödəniş qabiliyyətinizi yoxlayacaq.</p>
+                    
+                    <form class="input-form credit-form" id="credit-form">
+                        <div class="form-group">
+                            <label for="credit-bank" data-i18n="credit_bank">Bank Adı</label>
+                            <input type="text" id="credit-bank" data-i18n-placeholder="credit_bank_placeholder" placeholder="Məsələn: Kapital Bank..." required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="credit-amount" data-i18n="credit_amount">Kredit Məbləği</label>
+                                <input type="number" id="credit-amount" placeholder="5000" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="credit-rate" data-i18n="credit_rate">İllik Faiz Dərəcəsi (%)</label>
+                                <input type="number" id="credit-rate" placeholder="15" step="0.01" min="0" max="100" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="credit-term" data-i18n="credit_term">Müddət (Ay)</label>
+                                <input type="number" id="credit-term" placeholder="12" min="1" max="360" required>
+                            </div>
+                        </div>
+
+                        <!-- Tövsiyə Paneli -->
+                        <div class="recommendation-panel" id="recommendation-panel">
+                            <div class="recommendation-header">
+                                <span class="rec-icon">💡</span>
+                                <span class="rec-title" data-i18n="credit_recommendation">Kredit Tövsiyəsi</span>
+                            </div>
+                            <div class="recommendation-content" id="recommendation-content">
+                                <p class="rec-message" data-i18n="credit_enter_amount">Kredit məbləği və faiz daxil edin...</p>
+                            </div>
+                            <div class="recommendation-options" id="recommendation-options">
+                                <!-- Tövsiyələr buraya əlavə olunacaq -->
+                            </div>
+                        </div>
+
+                        <div class="monthly-payment-preview" id="monthly-preview">
+                            <span class="preview-label" data-i18n="credit_monthly">Aylıq Ödəniş:</span>
+                            <span class="preview-value" id="preview-amount">0.00 ₼</span>
+                        </div>
+                        <button type="submit" class="btn btn-credit">
+                            <span data-i18n="credit_add">+ Kredit Əlavə Et</span>
+                        </button>
+                    </form>
+
+                    <div class="list-container credit-list-container">
+                        <ul class="items-list" id="credit-list">
+                            <!-- Kreditlər buraya əlavə olunacaq -->
+                        </ul>
+                        <div class="empty-state" id="credit-empty">
+                            <span class="empty-icon">🏦</span>
+                            <p data-i18n="credit_empty">Hələ heç bir kredit əlavə olunmayıb</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Xərclər Bölməsi -->
+            <section class="section expense-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-icon expense-icon">🧾</div>
+                        <div class="subsection-title-content">
+                            <div>
+                                <h2 data-i18n="expense_title">Məcburi Xərclər</h2>
+                                <p class="section-subtitle" data-i18n="expense_subtitle">Hər ay ödənilməli məcburi xərcləri buraya əlavə edin</p>
+                            </div>
+                            <span class="expense-total" id="expense-total">0.00 ₼ /ay</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="input-form expense-form" id="expense-form">
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="expense-title">
+                                <span class="label-icon">📝</span>
+                                <span data-i18n="expense_label">Xərc Başlığı</span>
+                            </label>
+                            <input type="text" id="expense-title" data-i18n-placeholder="expense_placeholder" placeholder="Məsələn: Kirayə, Kommunal, Internet..." required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="expense-amount">
+                                <span class="label-icon">💰</span>
+                                <span data-i18n="expense_amount">Məbləğ</span>
+                            </label>
+                            <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-expense">
+                        <span class="btn-icon">+</span>
+                        <span data-i18n="expense_add">Xərc Əlavə Et</span>
+                    </button>
+                </form>
+
+                <div class="list-container">
+                    <ul class="items-list" id="expense-list">
+                        <!-- Xərclər buraya əlavə olunacaq -->
+                    </ul>
+                    <div class="empty-state" id="expense-empty">
+                        <span class="empty-icon">📋</span>
+                        <p data-i18n="expense_empty">Hələ heç bir xərc əlavə olunmayıb</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Digər Xərclər Bölməsi -->
+            <section class="section other-expenses-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <div class="section-icon expense-icon">🛒</div>
+                        <div class="subsection-title-content">
+                            <div>
+                                <h2 data-i18n="other_expenses_title">Digər Xərclər</h2>
+                                <p class="section-subtitle" data-i18n="other_expenses_subtitle">Market alış-verişi və digər xərcləri buraya əlavə edin</p>
+                            </div>
+                            <span class="market-total" id="market-total">0.00 ₼ /ay</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Alış-verişi Bölməsi -->
+                <div class="market-subsection">
+                    <div class="subsection-header">
+                        <div class="subsection-title-wrapper">
+                            <div class="subsection-icon market-icon">🛒</div>
+                            <div>
+                                <p class="subsection-subtitle" data-i18n="market_subtitle">Market məhsullarını əlavə edin</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Axtarış -->
+                    <div class="search-container">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="market-search" data-i18n-placeholder="market_search" placeholder="Məhsul axtar...">
+                            <button class="clear-search" id="clear-search" data-i18n-title="button_clear">✕</button>
+                        </div>
+                    </div>
+                    
+                    <form class="input-form market-form" id="market-form">
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label for="market-product">
+                                    <span class="label-icon">📦</span>
+                                    <span data-i18n="market_product">Məhsul Adı</span>
+                                </label>
+                                <input type="text" id="market-product" data-i18n-placeholder="market_product_placeholder" placeholder="Məsələn: Nəqliyyat, Market, Digər" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="market-price">
+                                    <span class="label-icon">💰</span>
+                                    <span data-i18n="market_price">Qiymət</span>
+                                </label>
+                                <input type="number" id="market-price" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-market">
+                            <span class="btn-icon">+</span>
+                            <span data-i18n="market_add">Səbətə Əlavə Et</span>
+                        </button>
+                    </form>
+
+                    <div class="list-container market-list-container">
+                        <ul class="items-list market-items" id="market-list">
+                            <!-- Market məhsulları buraya əlavə olunacaq -->
+                        </ul>
+                        <div class="empty-state" id="market-empty">
+                            <span class="empty-icon">🛒</span>
+                            <p data-i18n="market_empty">Səbət boşdur</p>
+                        </div>
+                    </div>
+
+                    <div class="market-actions">
+                        <button class="btn btn-clear-market" id="clear-market" data-i18n="market_clear">
+                            🗑️ Səbəti Təmizlə
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Valyuta və Kripto Bölməsi -->
+        <section class="section currency-section">
+            <div class="section-header">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <h2 data-i18n="currency_title">💱 Valyuta və Kripto</h2>
+                    <!-- Kripto Portfolio -->
+                    <div class="crypto-portfolio" id="crypto-portfolio" style="display: none;">
+                        <div class="portfolio-items" id="crypto-portfolio-items">
+                            <!-- Portfolio items will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-crypto-buy" id="crypto-buy-btn" data-i18n="crypto_buy">Kripto Al</button>
+                    <button class="btn btn-crypto-sell" id="crypto-sell-btn" data-i18n="crypto_sell">Kripto Sat</button>
+                    <button class="btn-refresh" id="refresh-rates" data-i18n-title="currency_refresh">🔄</button>
+                </div>
+            </div>
+            <p class="section-description" data-i18n="currency_description">Valyuta kurslarını izləyin, konvertasiya edin və qalıq pulunuza əsasən kripto investisiya tövsiyələri alın. Kurslar real vaxtda yenilənir.</p>
+
+            <!-- Valyuta Konvertasiyası -->
+            <div class="currency-converter">
+                <h3 data-i18n="currency_convert">💵 Valyuta Konvertasiyası</h3>
+                <div class="converter-form">
+                    <div class="converter-row">
+                        <div class="converter-input-group">
+                            <input type="number" id="convert-amount" placeholder="0.00" step="0.01" min="0" value="1">
+                            <select id="convert-from">
+                                <option value="AZN">AZN (₼)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="TRY">TRY (₺)</option>
+                                <option value="RUB">RUB (₽)</option>
+                            </select>
+                        </div>
+                        <button class="btn-swap" id="swap-currencies" data-i18n-title="currency_swap">⇄</button>
+                        <div class="converter-input-group">
+                            <input type="number" id="convert-result" placeholder="0.00" readonly>
+                            <select id="convert-to">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="AZN" selected>AZN (₼)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="TRY">TRY (₺)</option>
+                                <option value="RUB">RUB (₽)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="converter-rate" id="converter-rate">
+                        <span>1 USD = 1.70 AZN</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Valyuta Kursları -->
+            <div class="currency-rates">
+                <h3 data-i18n="currency_rates">📊 Valyuta Kursları</h3>
+                <div class="rates-grid" id="currency-rates">
+                    <div class="rate-card">
+                        <div class="rate-flag">🇺🇸</div>
+                        <div class="rate-info">
+                            <span class="rate-name">USD</span>
+                            <span class="rate-value" id="rate-usd">1.70 ₼</span>
+                        </div>
+                        <span class="rate-change" id="change-usd">+0.00%</span>
+                    </div>
+                    <div class="rate-card">
+                        <div class="rate-flag">🇪🇺</div>
+                        <div class="rate-info">
+                            <span class="rate-name">EUR</span>
+                            <span class="rate-value" id="rate-eur">1.85 ₼</span>
+                        </div>
+                        <span class="rate-change" id="change-eur">+0.00%</span>
+                    </div>
+                    <div class="rate-card">
+                        <div class="rate-flag">🇬🇧</div>
+                        <div class="rate-info">
+                            <span class="rate-name">GBP</span>
+                            <span class="rate-value" id="rate-gbp">2.15 ₼</span>
+                        </div>
+                        <span class="rate-change" id="change-gbp">+0.00%</span>
+                    </div>
+                    <div class="rate-card">
+                        <div class="rate-flag">🇹🇷</div>
+                        <div class="rate-info">
+                            <span class="rate-name">TRY</span>
+                            <span class="rate-value" id="rate-try">0.055 ₼</span>
+                        </div>
+                        <span class="rate-change" id="change-try">+0.00%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kripto Tövsiyə Paneli -->
+            <div class="crypto-recommendation-panel" id="crypto-recommendation">
+                <div class="recommendation-header">
+                    <span class="rec-icon">💎</span>
+                    <span class="rec-title" data-i18n="crypto_recommendation">Kripto Investisiya Tövsiyəsi</span>
+                </div>
+                <div class="recommendation-content" id="crypto-rec-content">
+                    <p class="rec-message" data-i18n="crypto_investment_advice">Qalıq pulunuza baxaraq investisiya tövsiyələri...</p>
+                </div>
+            </div>
+
+            <!-- Kripto Valyuta -->
+            <div class="crypto-section">
+                <h3 data-i18n="crypto_title">₿ Kripto Valyuta</h3>
+                <div class="crypto-grid" id="crypto-rates">
+                    <div class="crypto-card">
+                        <div class="crypto-icon">₿</div>
+                        <div class="crypto-info">
+                            <span class="crypto-name">Bitcoin</span>
+                            <span class="crypto-symbol">BTC</span>
+                        </div>
+                        <div class="crypto-price">
+                            <span class="crypto-value" id="crypto-btc">$0</span>
+                            <span class="crypto-change" id="crypto-btc-change">0%</span>
+                        </div>
+                    </div>
+                    <div class="crypto-card">
+                        <div class="crypto-icon">Ξ</div>
+                        <div class="crypto-info">
+                            <span class="crypto-name">Ethereum</span>
+                            <span class="crypto-symbol">ETH</span>
+                        </div>
+                        <div class="crypto-price">
+                            <span class="crypto-value" id="crypto-eth">$0</span>
+                            <span class="crypto-change" id="crypto-eth-change">0%</span>
+                        </div>
+                    </div>
+                    <div class="crypto-card">
+                        <div class="crypto-icon">💎</div>
+                        <div class="crypto-info">
+                            <span class="crypto-name">Binance Coin</span>
+                            <span class="crypto-symbol">BNB</span>
+                        </div>
+                        <div class="crypto-price">
+                            <span class="crypto-value" id="crypto-bnb">$0</span>
+                            <span class="crypto-change" id="crypto-bnb-change">0%</span>
+                        </div>
+                    </div>
+                    <div class="crypto-card">
+                        <div class="crypto-icon">💠</div>
+                        <div class="crypto-info">
+                            <span class="crypto-name">Cardano</span>
+                            <span class="crypto-symbol">ADA</span>
+                        </div>
+                        <div class="crypto-price">
+                            <span class="crypto-value" id="crypto-ada">$0</span>
+                            <span class="crypto-change" id="crypto-ada-change">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer>
+            <p data-i18n="footer_rights">© 2025 Ailə Büdcəsi İdarəetmə Sistemi</p>
+        </footer>
+    </div>
+
+    <!-- Mədaxil Modal -->
+    <div class="modal-overlay" id="deposit-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 data-i18n="deposit_title">💰 Gəlir Əlavə Et</h2>
+                <button class="modal-close" id="close-deposit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <p><span data-i18n="deposit_balance">Mövcud balans</span>: <strong id="current-balance-display">0.00 ₼</strong></p>
+                </div>
+                <form id="deposit-form">
+                    <div class="form-group">
+                        <label for="deposit-title">
+                            <span class="label-icon">📝</span>
+                            <span data-i18n="deposit_label">Gəlir Başlığı</span>
+                        </label>
+                        <input type="text" id="deposit-title" data-i18n-placeholder="deposit_placeholder" placeholder="Məsələn: Maaş, Kirayə, Bonus, Hədiyyə..." required autofocus>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="deposit-amount">
+                                <span class="label-icon">💰</span>
+                                <span data-i18n="deposit_amount">Məbləğ</span>
+                            </label>
+                            <input type="number" id="deposit-amount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="deposit-currency">
+                                <span class="label-icon">💱</span>
+                                <span data-i18n="deposit_currency">Valyuta</span>
+                            </label>
+                            <select id="deposit-currency" class="currency-select" required>
+                                <option value="AZN">AZN (₼)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="RUB">RUB (₽)</option>
+                                <option value="TRY">TRY (₺)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" id="cancel-deposit" data-i18n="deposit_cancel">Ləğv Et</button>
+                        <button type="submit" class="btn btn-submit" data-i18n="deposit_next">Növbəti</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Köçürmə Modal -->
+    <div class="modal-overlay" id="transfer-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>💳 Köçürmə Et</h2>
+                <button class="modal-close" id="close-transfer-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <p><span>Mövcud balans</span>: <strong id="transfer-balance-display">0.00 ₼</strong></p>
+                </div>
+                <form id="transfer-form">
+                    <div class="form-group">
+                        <label for="transfer-account-type">
+                            <span class="label-icon">🏦</span>
+                            <span>Köçürmə Növü</span>
+                        </label>
+                        <select id="transfer-account-type" required>
+                            <option value="card">Bank Kartı (16 rəqəm)</option>
+                            <option value="account">Hesab Nömrəsi</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="transfer-card-group">
+                        <label for="transfer-card-number">
+                            <span class="label-icon">💳</span>
+                            <span>Kart Nömrəsi (16 rəqəm)</span>
+                        </label>
+                        <input type="text" id="transfer-card-number" placeholder="1234 5678 9012 3456" maxlength="19" autofocus>
+                    </div>
+                    <div class="form-group" id="transfer-account-group" style="display: none;">
+                        <label for="transfer-account-number">
+                            <span class="label-icon">🏦</span>
+                            <span>Hesab Nömrəsi</span>
+                        </label>
+                        <input type="text" id="transfer-account-number" placeholder="AZ00XXXXXXXXXXXXXX" maxlength="28">
+                    </div>
+                    <div class="form-group">
+                        <label for="transfer-amount">
+                            <span class="label-icon">💰</span>
+                            <span>Məbləğ (₼)</span>
+                        </label>
+                        <input type="number" id="transfer-amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" id="cancel-transfer">Ləğv Et</button>
+                        <button type="submit" class="btn btn-submit">Köçür</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Kart Məlumatları Modal -->
+    <div class="modal-overlay" id="card-modal" style="display: none;">
+        <div class="modal-container card-modal-container">
+            <div class="modal-header">
+                <h2 data-i18n="card_title">💳 Kart Məlumatları</h2>
+                <button class="modal-close" id="close-card-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <p><span data-i18n="card_amount">Məbləğ</span>: <strong id="card-amount-display">0.00 ₼</strong></p>
+                </div>
+                <form id="card-form">
+                    <div class="form-group">
+                        <label for="card-number">
+                            <span class="label-icon">💳</span>
+                            <span data-i18n="card_number">Kart Nömrəsi (16 rəqəm)</span>
+                        </label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" required autofocus>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="card-expiry">
+                                <span class="label-icon">📅</span>
+                                <span data-i18n="card_expiry">Bitiş Tarixi (MM/YY)</span>
+                            </label>
+                            <input type="text" id="card-expiry" placeholder="12/25" maxlength="5" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="card-cvv">
+                                <span class="label-icon">🔒</span>
+                                <span data-i18n="card_cvv">CVV</span>
+                            </label>
+                            <input type="text" id="card-cvv" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+                    <div class="card-preview">
+                        <div class="card-visual">
+                            <div class="card-chip">💳</div>
+                            <div class="card-number-display" id="card-number-display">**** **** **** ****</div>
+                            <div class="card-footer">
+                                <div class="card-name" data-i18n="card_owner">KART SAHİBİ</div>
+                                <div class="card-expiry-display" id="card-expiry-display">MM/YY</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" id="cancel-card" data-i18n="card_cancel">Geri</button>
+                        <button type="submit" class="btn btn-submit" data-i18n="card_submit">Ödəniş Et</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yığım Sabit Düyməsi -->
+    <button class="savings-fab" id="savings-fab" data-i18n-title="savings_fab_title">
+        <span class="fab-icon">🎯</span>
+        <span class="fab-text" data-i18n="savings_fab_text">Yığım</span>
+    </button>
+
+    <!-- Yığım Modal -->
+    <div class="modal-overlay" id="savings-modal" style="display: none;">
+        <div class="modal-container savings-modal-container">
+            <div class="modal-header">
+                <h2 data-i18n="savings_modal_title">🎯 Yığım Hədəfləri</h2>
+                <button class="modal-close" id="close-savings-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="section-description" data-i18n="savings_modal_description">Ev, maşın, tətil kimi böyük məqsədlər üçün yığım hədəfləri yaradın. Sistem sizə optimal aylıq yığım məbləği tövsiyə edəcək. Pul əlavə etdikdə müddət avtomatik yenilənəcək.</p>
+
+                <!-- Tövsiyə Paneli -->
+                <div class="savings-recommendation-panel" id="savings-recommendation">
+                    <div class="recommendation-header">
+                        <span class="rec-icon">💡</span>
+                        <span class="rec-title" data-i18n="savings_recommendation">Aylıq Yığım Tövsiyəsi</span>
+                    </div>
+                    <div class="recommendation-content" id="savings-rec-content">
+                        <p class="rec-message" data-i18n="savings_enter_target">Hədəf məbləği daxil edin, sizə optimal aylıq yığım tövsiyə edək.</p>
+                    </div>
+                </div>
+
+                <form class="input-form" id="savings-form">
+                    <div class="form-group">
+                        <label for="savings-goal" data-i18n="savings_goal">Hədəf Adı</label>
+                        <input type="text" id="savings-goal" placeholder="Məsələn: Ev, Maşın, Tətil..." required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="savings-target" data-i18n="savings_target">Hədəf Məbləğ</label>
+                            <input type="number" id="savings-target" placeholder="50000" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="savings-monthly" data-i18n="savings_monthly">Aylıq Yığım</label>
+                            <input type="number" id="savings-monthly" placeholder="1000" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="savings-preview" id="savings-preview">
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="savings_duration">Müddət:</span>
+                            <span class="preview-value" id="preview-months">0 ay</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="savings_estimated_end">Təxmini bitmə:</span>
+                            <span class="preview-value" id="preview-date">-</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-savings">
+                        <span data-i18n="savings_add">+ Hədəf Əlavə Et</span>
+                    </button>
+                </form>
+
+                <div class="list-container savings-list-container">
+                    <ul class="items-list" id="savings-list">
+                        <!-- Hədəflər buraya əlavə olunacaq -->
+                    </ul>
+                    <div class="empty-state" id="savings-empty">
+                        <span class="empty-icon">🎯</span>
+                        <p data-i18n="savings_empty">Hələ heç bir hədəf əlavə olunmayıb</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kripto Alış Modal -->
+    <div class="modal-overlay" id="crypto-buy-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 data-i18n="crypto_buy_modal_title">💰 Kripto Alış</h2>
+                <button class="modal-close" id="close-crypto-buy-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="input-form" id="crypto-buy-form">
+                    <div class="form-group">
+                        <label for="crypto-buy-select" data-i18n="crypto_select">Kripto Seçin</label>
+                        <select id="crypto-buy-select" required>
+                            <option value="BTC">Bitcoin (BTC)</option>
+                            <option value="ETH">Ethereum (ETH)</option>
+                            <option value="BNB">Binance Coin (BNB)</option>
+                            <option value="ADA">Cardano (ADA)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="crypto-buy-amount" data-i18n="crypto_buy_amount">Məbləğ (₼)</label>
+                        <input type="number" id="crypto-buy-amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="crypto-preview" id="crypto-buy-preview">
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="crypto_you_will_get">Alınacaq:</span>
+                            <span class="preview-value" id="crypto-buy-quantity">0</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="crypto_current_price">Cari qiymət:</span>
+                            <span class="preview-value" id="crypto-buy-price">$0</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-submit" data-i18n="crypto_buy_confirm">Alış Et</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kripto Satış Modal -->
+    <div class="modal-overlay" id="crypto-sell-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 data-i18n="crypto_sell_modal_title">💸 Kripto Satış</h2>
+                <button class="modal-close" id="close-crypto-sell-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="input-form" id="crypto-sell-form">
+                    <div class="form-group">
+                        <label for="crypto-sell-select" data-i18n="crypto_select">Kripto Seçin</label>
+                        <select id="crypto-sell-select" required>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="crypto-sell-quantity" data-i18n="crypto_sell_quantity">Miqdar</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="number" id="crypto-sell-quantity" placeholder="0.00" step="any" min="0" required style="flex: 1;">
+                            <button type="button" id="crypto-sell-max-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; white-space: nowrap;" data-i18n="crypto_sell_max">Max</button>
+                        </div>
+                    </div>
+                    <div class="crypto-preview" id="crypto-sell-preview">
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="crypto_you_have">Sahib olduğunuz:</span>
+                            <span class="preview-value" id="crypto-sell-available">0</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="crypto_you_will_receive">Alacağınız:</span>
+                            <span class="preview-value" id="crypto-sell-amount">0.00 ₼</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label" data-i18n="crypto_current_price">Cari qiymət:</span>
+                            <span class="preview-value" id="crypto-sell-price">$0</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-submit" data-i18n="crypto_sell_confirm">Satış Et</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="config.js"></script>
+    <script src="locales/translations.js"></script>
+    <script src="i18n.js"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+    <!-- Yığıma Pul Əlavə Modal -->
+    <div class="modal-overlay" id="add-money-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="add-money-title">💰 Pul Əlavə Et</h2>
+                <button class="modal-close" id="close-add-money-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info" id="add-money-info">
+                    <p id="add-money-description"></p>
+                </div>
+                <form id="add-money-form">
+                    <div class="form-group">
+                        <label for="add-money-amount">
+                            <span class="label-icon">💵</span>
+                            <span>Məbləğ (₼)</span>
+                        </label>
+                        <input type="number" id="add-money-amount" step="0.01" min="0" required autofocus>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" id="cancel-add-money">Ləğv Et</button>
+                        <button type="submit" class="btn btn-submit">Əlavə Et</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

@@ -1,0 +1,9 @@
+# API Keys - Heç vaxt GitHub-a yükləməyin!
+.env
+config.js
+*.env.txt
+
+# System files
+.DS_Store
+Thumbs.db
+
