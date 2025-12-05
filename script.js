@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     // CONFIG yoxlanışı
     if (typeof CONFIG === 'undefined') {
-        console.error('CONFIG yüklənməyib! config.js faylını yoxlayın.');
+        //console.error('CONFIG yüklənməyib! config.js faylını yoxlayın.');
         setTimeout(() => {
             if (typeof CONFIG === 'undefined') {
                 alert(t('alert_config_error'));
