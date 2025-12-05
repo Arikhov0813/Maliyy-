@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     } else {
         console.log('✅ CONFIG uğurla yükləndi');
-        if (!CONFIG.OPENAI_API_KEY || CONFIG.OPENAI_API_KEY.trim() === '') {
+        if (!CONFIG.ADA || CONFIG.ADA.trim() === '') {
             console.error('❌ OPENAI_API_KEY boşdur! Chat bot işləməyəcək!');
             if (aiStatus) {
                 aiStatus.textContent = 'API Key yoxdur ❌';
