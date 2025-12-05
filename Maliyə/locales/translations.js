@@ -145,7 +145,6 @@ const TRANSLATIONS = {
         "login_button": "Giriş Et",
         "login_reset": "Məlumatları Sıfırla (Yenidən qeydiyyat)",
         "footer_rights": "© 2025 Büdcə İdarəetmə Sistemi",
-        "alert_config_error": "⚠️ Xəbərdarlıq: CONFIG yüklənməyib!\n\nconfig.js faylının mövcud olduğunu və script.js-dən əvvəl yükləndiyini yoxlayın.",
         "confirm_clear_cart": "Səbəti tamamilə təmizləmək istəyirsiniz?",
         "alert_deposit_title_required": "⚠️ Zəhmət olmasa gəlir başlığı daxil edin!",
         "alert_deposit_amount_required": "⚠️ Zəhmət olmasa düzgün məbləğ daxil edin!",
