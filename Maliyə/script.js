@@ -3090,7 +3090,7 @@ async function sendToAI(message, retryCount = 0) {
     }
     
     const maxRetries = CONFIG.MAX_RETRIES || 3;
-    const apiKey = CONFIG.OPENAI_API_KEY;
+    //const apiKey = CONFIG.OPENAI_API_KEY;
     const model = CONFIG.OPENAI_MODEL || 'gpt-4o-mini';
     
     // API key yoxlanışı
