@@ -424,16 +424,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     } else {
         console.log('✅ CONFIG uğurla yükləndi');
-        if (!CONFIG.ADA || CONFIG.ADA.trim() === '') {
-            console.error('❌ OPENAI_API_KEY boşdur! Chat bot işləməyəcək!');
-            if (aiStatus) {
-                aiStatus.textContent = 'API Key yoxdur ❌';
-                aiStatus.className = 'ai-status error';
-            }
-        } else {
-            console.log('✅ OPENAI_API_KEY mövcuddur');
-            console.log('✅ Model:', CONFIG.OPENAI_MODEL || 'gpt-4o-mini');
-        }
     }
     
     // AI elementləri yüklə
@@ -3090,7 +3080,6 @@ async function sendToAI(message, retryCount = 0) {
     }
     
     const maxRetries = CONFIG.MAX_RETRIES || 3;
-    //const apiKey = CONFIG.OPENAI_API_KEY;
     const model = CONFIG.OPENAI_MODEL || 'gpt-4o-mini';
     
     // API key yoxlanışı
