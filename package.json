@@ -1,7 +1,10 @@
 {
+  "name": "maliyye-project",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build": "next build",
-    "lint": "next lint",
-    "test": "echo \"No tests specified\" && exit 0"
+    "build": "mkdir -p dist && cp index.html dist/ && cp style.css dist/ && cp script.js dist/ && cp translations.json dist/",
+    "lint": "echo 'Lint skipped' && exit 0",
+    "test": "echo 'No tests yet' && exit 0"
   }
 }
