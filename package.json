@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist && cp index.html dist/ && cp style.css dist/ && cp script.js dist/ && cp translations.json dist/",
+    "build": "mkdir -p dist/locales && cp index.html dist/ && cp style.css dist/ && cp script.js dist/ && cp translations.json dist/ && cp -r locales/* dist/locales/",
     "lint": "echo 'Lint skipped' && exit 0",
     "test": "echo 'No tests yet' && exit 0"
   }
