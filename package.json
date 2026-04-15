@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build": "next build",
+    "lint": "next lint",
+    "test": "echo \"No tests specified\" && exit 0"
+  }
+}
