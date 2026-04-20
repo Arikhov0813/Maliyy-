@@ -2,8 +2,8 @@
   "name": "maliyye-project",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "build": "mkdir -p dist/locales && cp index.html dist/ && cp style.css dist/ && cp script.js dist/ && cp translations.json dist/ && cp -r locales/* dist/locales/",
+   "scripts": {
+    "build": "mkdir -p dist/locales && cp index.html dist/ && cp style.css dist/ && cp script.js dist/ && cp auth.js dist/ && cp i18n.js dist/ && cp translations.json dist/ && cp -r locales/* dist/locales/",
     "lint": "echo 'Lint skipped' && exit 0",
     "test": "echo 'No tests yet' && exit 0"
   }
