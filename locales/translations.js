@@ -1,7 +1,7 @@
 // Tərcümələr JavaScript obyekti kimi
 const TRANSLATIONS = {
     az: {
-        "header_title": "Büdcə Paneli",
+        "header_title": "DEVOPS",
         "header_subtitle": "Büdcəni bizimlə hesabla",
         "welcome_greeting": "👋 Xoş gəlmisiniz! Bu sistem ilə maliyyənizi idarə edə bilərsiniz.",
         "welcome_how": "📝 <strong>Necə işləyir?</strong> Əvvəlcə gəlirlərinizi, sonra xərclərinizi əlavə edin. Sistem avtomatik olaraq qalığı hesablayacaq və sizə tövsiyələr verəcək.",
@@ -219,7 +219,7 @@ const TRANSLATIONS = {
         "credit_bank_placeholder": "Məsələn: Kapital Bank..."
     },
     en: {
-        "header_title": "Budget Panel",
+        "header_title": "DEVOPS",
         "header_subtitle": "Calculate your budget with us",
         "welcome_greeting": "👋 Welcome! You can manage your finances with this system.",
         "welcome_how": "📝 <strong>How does it work?</strong> First add your income, then your expenses. The system will automatically calculate the balance and give you recommendations.",
