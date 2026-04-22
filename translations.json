@@ -1,6 +1,6 @@
 {
   "az": {
-    "header.title": "Büdcə Paneli",
+    "header.title": "DEVOPS",
     "header.subtitle": "Bizimli büdcəni ölç",
     "welcome.greeting": "👋 Xoş gəlmisiniz! Bu sistem ilə ailənizin maliyyəsini idarə edə bilərsiniz.",
     "welcome.how": "📝 <strong>Necə işləyir?</strong> Əvvəlcə gəlirlərinizi, sonra xərclərinizi əlavə edin. Sistem avtomatik olaraq qalığı hesablayacaq və sizə tövsiyələr verəcək.",
@@ -82,7 +82,7 @@
     "button.clear": "Təmizlə"
   },
   "en": {
-    "header.title": "Budget Panel",
+    "header.title": "DEVOPS",
     "header.subtitle": "Measure your budget together",
     "welcome.greeting": "👋 Welcome! You can manage your family finances with this system.",
     "welcome.how": "📝 <strong>How does it work?</strong> First add your income, then your expenses. The system will automatically calculate the balance and give you recommendations.",
@@ -164,7 +164,7 @@
     "button.clear": "Clear"
   },
   "ru": {
-    "header.title": "Панель Бюджета",
+    "header.title": "DEVOPS",
     "header.subtitle": "Измеряйте бюджет вместе",
     "welcome.greeting": "👋 Добро пожаловать! Вы можете управлять семейными финансами с помощью этой системы.",
     "welcome.how": "📝 <strong>Как это работает?</strong> Сначала добавьте доходы, затем расходы. Система автоматически рассчитает баланс и даст рекомендации.",
